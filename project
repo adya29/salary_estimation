@@ -1,0 +1,47 @@
+import pandas as pd #importing pandas library
+import numpy as np #importing numpy library
+dataset = pd.read_csv('salary.csv') #load dataset
+print(dataset.shape) # summarize dataset
+print(dataset.head(32651))
+dataset['income']=dataset['income'].map({'<=50K':0,'>50K':1}).astype(int)
+print(dataset.head)
+X = dataset.iloc[:,:-1].values
+X
+Y = dataset.iloc[:,-1].values
+Y
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test = train_test_split(X,Y,test_size=0.25,random_state= 0)
+from sklearn.preprocessing import StandardScaler
+sc = StandardScaler()
+X_train = sc.fit_transform(X_train)
+X_test  = sc.fit_transform(X_test)
+error = []
+from sklearn.neighbors import KNeighborsClassifier #classification
+import matplotlib.pyplot as plt
+#   Calculating error for K values between 1 and 40
+for i in range(1,40):
+  model = KNeighborsClassifier(n_neighbors=i)
+  model.fit(X_train,y_train)
+  pred_i = model.predict(X_test)
+  error.append(np.mean(pred_i != y_test))
+  plt.figure(figsize=(12,6))
+  plt.plot(range(1, 40), color ='red', linestyle='dashed', marker='o', markerfacecolor='blue', markersize= 10)
+  plt.title('Error rate k value')
+  plt.xlabel('K value')
+  plt.ylabel('Mean error')
+  age = int(input("enter the employee's age :")) #check the prediction
+  edu = int(input("enter the employee's education:"))
+  cg = int(input("enter new employee's capital gain:"))
+  wh = int(input("enter new employee's hour's per week:"))
+  newEmp = [[age,edu,cg,wh]]
+  result = model.predict(sc.transform(newEmp))
+  print(result)
+  if result == 1:
+    print("employee might get salary above 60K")
+  else :
+    print("employee will get salary under 60K")
+from sklearn.model import confusion_matrix,accuracy_score
+cm = confusion_matrix(y_test,y_pred)
+print("Confusion matrix:")
+print(cm)
+print("Model Accuracy:{0}%".format(accuracy_score(y_test,y_pred)*100))
